@@ -31,13 +31,16 @@ void Game::Init()
     // setup camera
     cam = new Camera();
     cam->Zoom = 74;
-    cam->Position = glm::vec3(0, 0, -2);
+    cam->Position = glm::vec3(0, 0, 2);
     cam->Up = glm::vec3(0, 1, 0);
-    cam->Front = glm::vec3(0, 0, 1);
+    cam->Front = glm::vec3(0, 0, -1);
     cam->Right = glm::vec3(1, 0, 0);
     //cam->fov = 74; // vertical FOV, find way to get less dumb horizontal fov
     cam->MouseSensitivity = 0.1f;
     cam->orthoView = false;
+
+    cam->mouseEnabled = true;
+    cam->wasdEnabled = true;
 
     //cam->orthoView = true;
     //cam->Zoom = 20;
@@ -82,6 +85,26 @@ void Game::ProcessInput(float dt)
     {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
+
+    if (Keys[GLFW_KEY_W])
+        cam->ProcessKeyboard(Camera_Movement::FORWARD, dt);
+    else if (Keys[GLFW_KEY_S])
+        cam->ProcessKeyboard(Camera_Movement::BACKWARD, dt);
+
+    if (Keys[GLFW_KEY_D])
+        cam->ProcessKeyboard(Camera_Movement::RIGHT, dt);
+    else if (Keys[GLFW_KEY_A])
+        cam->ProcessKeyboard(Camera_Movement::LEFT, dt);
+
+    if (Keys[GLFW_KEY_LEFT])
+        cam->RotateCamera(3000.0f * dt, 0, true);
+    else if (Keys[GLFW_KEY_RIGHT])
+        cam->RotateCamera(-3000.0f * dt, 0, true);
+    if (Keys[GLFW_KEY_UP])
+        cam->RotateCamera(0, 3000 * dt, true);
+    else if (Keys[GLFW_KEY_DOWN])
+        cam->RotateCamera(0, -3000 * dt, true);
+    cam->ProcessMouseMovement(MousePos);
 }
 float ang = 0;
 void Game::Render()
@@ -97,7 +120,7 @@ void Game::Render()
         shader.SetMatrix4("view", view);
     }
 
-    ang += deltaTime * 60;
+    //ang += deltaTime * 60;
     RendererUtility::DrawSprite(
         glm::vec3(0.0f, 0, 0.0f),
         glm::quat(glm::vec3(0, glm::radians(ang), 0)),

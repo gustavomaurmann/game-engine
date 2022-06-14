@@ -33,18 +33,44 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
     if (orthoView)
         wDirection = Up;
     if (direction == FORWARD)
-        Position += glm::vec3(0, 0, 1) * velocity;
+        Position += Front * velocity;
     if (direction == BACKWARD)
-        Position += glm::vec3(0, 0, -1) * velocity;
+        Position += -Front * velocity;
     if (direction == LEFT)
-        Position += glm::vec3(1, 0, 0) * velocity;
+        Position += -Right * velocity;
     if (direction == RIGHT)
-        Position += glm::vec3(-1, 0, 0) * velocity;
+        Position += Right * velocity;
 }
-void Camera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch)
+void Camera::ProcessMouseMovement(glm::vec2 mousePos)
 {
     if (!mouseEnabled)
         return;
+    if (firstMouse)
+    {
+        lastMousePos = mousePos;
+        firstMouse = false;
+    }
+    glm::vec2 delta = lastMousePos - mousePos;
+    lastMousePos = mousePos;
+    RotateCamera(delta.x, delta.y);
+}
+void Camera::ProcessMouseScroll(float yoffset)
+{
+    if (!zoomEnabled)
+        return;
+    Zoom -= (float)yoffset;
+    if (Zoom < 1.0f)
+        Zoom = 1.0f;
+    if (Zoom > 45.0f)
+        Zoom = 45.0f;
+}
+void Camera::updateCameraVectors()
+{
+
+}
+
+void Camera::RotateCamera(float xoffset, float yoffset, bool constrainPitch)
+{
     xoffset *= MouseSensitivity;
     yoffset *= MouseSensitivity;
     if (firstMouse) // initially set to true
@@ -66,27 +92,9 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPi
             Pitch = -89.0f;
     }
 
+    rotation = glm::quat(glm::vec3(glm::radians(Pitch), glm::radians(Yaw), 0));
     // update Front, Right and Up Vectors using the updated Euler angles
-    updateCameraVectors();
-}
-void Camera::ProcessMouseScroll(float yoffset)
-{
-    if (!zoomEnabled)
-        return;
-    Zoom -= (float)yoffset;
-    if (Zoom < 1.0f)
-        Zoom = 1.0f;
-    if (Zoom > 45.0f)
-        Zoom = 45.0f;
-}
-void Camera::updateCameraVectors()
-{
-    // calculate the new Front vector
-    glm::vec3 front;
-    front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-    front.y = sin(glm::radians(Pitch));
-    front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
-    Front = glm::normalize(front);
-    Right = glm::normalize(glm::cross(Front, WorldUp));
-    Up = glm::normalize(glm::cross(Right, Front));
+    Front = rotation * glm::vec3(0, 0, -1);
+    Right = rotation * glm::vec3(1, 0, 0);
+    Up = rotation * glm::vec3(0, 1, 0);
 }

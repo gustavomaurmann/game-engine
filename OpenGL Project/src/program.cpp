@@ -9,6 +9,7 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
+
 // The Width of the screen
 const unsigned int SCREEN_WIDTH = 1280;
 // The height of the screen
@@ -64,7 +65,8 @@ int main(int argc, char* argv[]){
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-        glfwPollEvents();
+        //glfwPollEvents();
+        glfwWaitEvents();
 
         // manage user input
         // -----------------

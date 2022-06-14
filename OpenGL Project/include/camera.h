@@ -3,6 +3,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include <vector>
 
 enum Camera_Movement {
@@ -30,7 +31,9 @@ public:
     bool orthoView;
     float Yaw;
     float Pitch;
+    glm::quat rotation;
     bool firstMouse = true;
+    glm::vec2 lastMousePos;
     float MovementSpeed;
     float MouseSensitivity;
     float Zoom;
@@ -43,10 +46,11 @@ public:
     glm::mat4 GetViewMatrix();
     glm::mat4 GetProjectionMatrix();
     void ProcessKeyboard(Camera_Movement direction, float deltaTime);
-    void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = true);
+    void ProcessMouseMovement(glm::vec2 mousePos);
     void ProcessMouseScroll(float yoffset);
 
     void updateCameraVectors();
+    void RotateCamera(float xoffset, float yoffset, bool constrainPitch = true);
 };
 #endif
 
