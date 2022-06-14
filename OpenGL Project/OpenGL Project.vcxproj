@@ -180,6 +180,7 @@
     <ClInclude Include="include\texture.h" />
     <ClInclude Include="include\renderer_utility.h" />
     <ClInclude Include="include\sprite.h" />
+    <ClInclude Include="include\vertex.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="OpenGL Project.rc" />

@@ -15,13 +15,14 @@ glm::mat4 Camera::GetViewMatrix()
     return glm::lookAt(Position, Position + Front, Up);
 }
 glm::mat4 Camera::GetProjectionMatrix()
-{
+{    
+    // assuming 16:9 perspective. change later to take into account window aspect ratio
+    float ratio = 1.77778f;
     if (orthoView)
     {
-        float ratio = 800.0f / 600.0f;
         return glm::ortho(-ratio * Zoom/20, ratio * Zoom / 20, -ratio * Zoom / 20, ratio * Zoom / 20, -1000.0f, 1000.0f);
     }   
-    return glm::perspective(glm::radians(Zoom), 800.0f / 600.0f, 0.1f, 100.0f);
+    return glm::perspective(glm::radians(Zoom), ratio, 0.1f, 100.0f);
 }
 void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 {
