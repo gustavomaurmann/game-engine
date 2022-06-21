@@ -65,8 +65,7 @@ int main(int argc, char* argv[]){
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-        //glfwPollEvents();
-        glfwWaitEvents();
+        glfwPollEvents();
 
         // manage user input
         // -----------------
@@ -76,20 +75,16 @@ int main(int argc, char* argv[]){
         // -----------------
         game.Update(deltaTime);
 
-
         // render
         // ------
-        glClearColor(49.0f/255.0f, 77.0f / 255.0f, 121.0f / 255.0f, 1.0f); // unity color thing
+        glClearColor(49.0f / 255.0f, 77.0f / 255.0f, 121.0f / 255.0f, 1.0f); // unity color thing
         glClear(GL_COLOR_BUFFER_BIT);
-        if (!Game::Keys[GLFW_KEY_K])
-        {
-            game.Render();
 
+        game.Render();
 
-            glfwSwapBuffers(window);
+        glfwSwapBuffers(window);
 
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        }
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
     // delete all resources as loaded using the resource manager

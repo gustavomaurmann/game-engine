@@ -3,18 +3,21 @@
 #include <iostream>
 
 #include "camera.h"
+#include "player.h"
 #include "renderer_utility.h"
 #include "resource_manager.h"
 #include "stb_image.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/string_cast.hpp>
 bool* Game::Keys;
 glm::vec2 Game::MousePos;
 // update tick
 float deltaTime;
 
 Camera* cam;
+Player* player;
 
 Game::Game(unsigned int width, unsigned int height)
 {
@@ -30,20 +33,15 @@ void Game::Init()
 {
     // setup camera
     cam = new Camera();
-    cam->Zoom = 74;
-    cam->Position = glm::vec3(0, 0, 2);
-    cam->Up = glm::vec3(0, 1, 0);
-    cam->Front = glm::vec3(0, 0, -1);
-    cam->Right = glm::vec3(1, 0, 0);
-    //cam->fov = 74; // vertical FOV, find way to get less dumb horizontal fov
-    cam->MouseSensitivity = 0.1f;
-    cam->orthoView = false;
+    cam->position = glm::vec3(0, 0, 2);
+    cam->rotation = glm::quat(1, 0, 0, 0);
+    cam->fov = 59;
 
-    cam->mouseEnabled = true;
-    cam->wasdEnabled = true;
+    // player
+    player = new Player();
+    player->position = glm::vec3(0, 0, 0);
+    player->cam = cam;
 
-    //cam->orthoView = true;
-    //cam->Zoom = 20;
     // load shaders
     ResourceManager::LoadShader("shader/sprite.vs", "shader/sprite.frag", nullptr, "sprite");
     std::cout << "---------------------------" << std::endl << "Loaded Shaders : " << std::endl;
@@ -86,29 +84,28 @@ void Game::ProcessInput(float dt)
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     }
 
-    if (Keys[GLFW_KEY_W])
-        cam->ProcessKeyboard(Camera_Movement::FORWARD, dt);
-    else if (Keys[GLFW_KEY_S])
-        cam->ProcessKeyboard(Camera_Movement::BACKWARD, dt);
+    if (Keys[GLFW_KEY_K])
+    {
+        std::cout << glm::to_string(player->position) << std::endl;
+        std::cout << glm::to_string(player->cam->position) << std::endl;
+        std::cout << player->cam->yaw << std::endl;
+        std::cout << player->cam->pitch << std::endl;
+        std::cout << glm::to_string(player->cam->front) << std::endl;
+    }
 
-    if (Keys[GLFW_KEY_D])
-        cam->ProcessKeyboard(Camera_Movement::RIGHT, dt);
-    else if (Keys[GLFW_KEY_A])
-        cam->ProcessKeyboard(Camera_Movement::LEFT, dt);
+    glm::vec2 direction = glm::vec2(0,0);
+    if (Keys[GLFW_KEY_W]) direction.y = 1;
+    else if (Keys[GLFW_KEY_S]) direction.y = -1;
+    if (Keys[GLFW_KEY_D]) direction.x = 1;
+    else if (Keys[GLFW_KEY_A]) direction.x = -1;
 
-    if (Keys[GLFW_KEY_LEFT])
-        cam->RotateCamera(3000.0f * dt, 0, true);
-    else if (Keys[GLFW_KEY_RIGHT])
-        cam->RotateCamera(-3000.0f * dt, 0, true);
-    if (Keys[GLFW_KEY_UP])
-        cam->RotateCamera(0, 3000 * dt, true);
-    else if (Keys[GLFW_KEY_DOWN])
-        cam->RotateCamera(0, -3000 * dt, true);
-    cam->ProcessMouseMovement(MousePos);
+    player->Move(direction, dt);
+    player->Look(MousePos);
 }
 float ang = 0;
 void Game::Render()
 {
+    cam->position = player->position + player->camOffset;
     // set shader view and projection matrixes
     glm::mat4 projection = cam->GetProjectionMatrix();
     glm::mat4 view = cam->GetViewMatrix();
@@ -123,9 +120,9 @@ void Game::Render()
     //ang += deltaTime * 60;
     RendererUtility::DrawSprite(
         glm::vec3(0.0f, 0, 0.0f),
-        glm::quat(glm::vec3(0, glm::radians(ang), 0)),
+        glm::quat(glm::vec3(glm::radians(90.0f),0, 0)),
         // glm::quat(1.0f, 0, 0, 0),
-        glm::vec3(1.0f, 1.0f, 1.0f), 
+        glm::vec3(5.0f, 5.0f, 5.0f),
         ResourceManager::GetTexture("grid"), 
         ResourceManager::GetShader("sprite"));
 
