@@ -10,7 +10,7 @@ class Game
 {
 public:
     static bool* Keys;
-    static int  Width, Height;
+    static int Width, Height;
     static glm::vec2 MousePos;
 
     Game(unsigned int width, unsigned int height);

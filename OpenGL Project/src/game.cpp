@@ -75,6 +75,7 @@ void Game::Init()
 void Game::Update(float dt)
 {
     deltaTime = dt;
+    player->Move(deltaTime);
 }
 void Game::ProcessInput(float dt)
 {
@@ -86,11 +87,13 @@ void Game::ProcessInput(float dt)
 
     if (Keys[GLFW_KEY_K])
     {
-        std::cout << glm::to_string(player->position) << std::endl;
-        std::cout << glm::to_string(player->cam->position) << std::endl;
-        std::cout << player->cam->yaw << std::endl;
-        std::cout << player->cam->pitch << std::endl;
-        std::cout << glm::to_string(player->cam->front) << std::endl;
+       // std::cout << glm::to_string(player->position) << std::endl;
+       // std::cout << glm::to_string(player->cam->position) << std::endl;
+       // std::cout << player->cam->yaw << std::endl;
+        //std::cout << player->cam->pitch << std::endl;
+        std::cout << glm::to_string(player->velocity) << std::endl;
+        std::cout << glm::to_string(player->moveDir) << std::endl;
+        std::cout << std::endl << std::endl;
     }
 
     glm::vec2 direction = glm::vec2(0,0);
@@ -99,16 +102,18 @@ void Game::ProcessInput(float dt)
     if (Keys[GLFW_KEY_D]) direction.x = 1;
     else if (Keys[GLFW_KEY_A]) direction.x = -1;
 
-    player->Move(direction, dt);
+    player->SetMovementDir(direction);
     player->Look(MousePos);
 }
-float ang = 0;
 void Game::Render()
 {
     cam->position = player->position + player->camOffset;
     // set shader view and projection matrixes
     glm::mat4 projection = cam->GetProjectionMatrix();
     glm::mat4 view = cam->GetViewMatrix();
+
+
+
     for (auto it = ResourceManager::Shaders.begin(); it != ResourceManager::Shaders.end(); ++it)
     {
         Shader shader = it->second;
@@ -117,7 +122,7 @@ void Game::Render()
         shader.SetMatrix4("view", view);
     }
 
-    //ang += deltaTime * 60;
+    // ground
     RendererUtility::DrawSprite(
         glm::vec3(0.0f, 0, 0.0f),
         glm::quat(glm::vec3(glm::radians(90.0f),0, 0)),
